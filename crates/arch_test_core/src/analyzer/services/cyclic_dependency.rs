@@ -182,6 +182,9 @@ fn find_traverse_on_level(
         .get(&current_index)
         .unwrap()
         .iter()
+        .filter(|use_relation| {
+            node_mapping.contains_key(&use_relation.used_object().node_index())
+        })
         .dedup_by(|left, right| {
             node_mapping.get(&left.used_object().node_index()).unwrap()
                 == node_mapping.get(&right.used_object().node_index()).unwrap()
