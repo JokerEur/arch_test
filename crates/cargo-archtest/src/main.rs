@@ -69,6 +69,7 @@ extern crate serde_json;
 #[macro_use]
 extern crate structopt;
 
+use std::fs;
 use std::path::Path;
 
 use structopt::StructOpt;
@@ -89,26 +90,45 @@ fn main() {
     } = Command::from_args();
     let toml_path = Path::new(&toml_path);
     if toml_path.exists() && toml_path.is_file() {
-        match cargo_toml::Manifest::from_path(toml_path) {
-            Ok(toml) => {
-                if let Some(workspace) = toml.workspace {
-                    for member in workspace.members {
-                        if member.contains('*') {
-                            println!("Can not interpret paths with '*'");
-                            std::process::exit(1);
-                        } else {
-                            check_architecture(&member, check_for_complete_layer_specification);
-                        }
-                    }
-                } else {
-                    check_architecture(".", check_for_complete_layer_specification);
-                }
-            }
+        // Read the file content first, then parse it. This avoids workspace resolution
+        // which can fail when workspace.metadata is present but no workspace root exists.
+        let toml_content = match fs::read_to_string(toml_path) {
+            Ok(content) => content,
             Err(e) => {
-                eprintln!("Cargo.toml could not be parsed!");
+                eprintln!("Cargo.toml could not be read!");
                 eprintln!("Error: {}", e);
                 std::process::exit(1);
             }
+        };
+        
+        // Try parsing with from_path first (for workspace support)
+        // If that fails, fall back to from_str (without workspace resolution)
+        let toml = match cargo_toml::Manifest::from_path(toml_path) {
+            Ok(manifest) => manifest,
+            Err(_) => {
+                // Fall back to parsing from string, which doesn't try to resolve workspace
+                match cargo_toml::Manifest::from_str(&toml_content) {
+                    Ok(manifest) => manifest,
+                    Err(e) => {
+                        eprintln!("Cargo.toml could not be parsed!");
+                        eprintln!("Error: {}", e);
+                        std::process::exit(1);
+                    }
+                }
+            }
+        };
+        
+        if let Some(workspace) = toml.workspace {
+            for member in workspace.members {
+                if member.contains('*') {
+                    println!("Can not interpret paths with '*'");
+                    std::process::exit(1);
+                } else {
+                    check_architecture(&member, check_for_complete_layer_specification);
+                }
+            }
+        } else {
+            check_architecture(".", check_for_complete_layer_specification);
         }
     } else {
         println!("Cargo.toml not found in the specified path!");
