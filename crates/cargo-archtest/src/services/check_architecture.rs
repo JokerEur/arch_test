@@ -30,9 +30,11 @@ pub fn check_architecture(directory_path: &str, check_for_complete_layer_specifi
             }
         }
     } else {
-        println!(
+        eprintln!(
             "Specification file cant be opened for '{}'.",
             directory_path
         );
+        eprintln!("Expected architecture.json at: {}", specification_path);
+        std::process::exit(1);
     }
 }

@@ -90,6 +90,24 @@ fn main() {
     } = Command::from_args();
     let toml_path = Path::new(&toml_path);
     if toml_path.exists() && toml_path.is_file() {
+        // Get the directory containing the Cargo.toml file
+        // Canonicalize to get the absolute path, then get parent
+        let cargo_dir = match toml_path.canonicalize() {
+            Ok(canonical_path) => {
+                canonical_path.parent()
+                    .and_then(|p| p.to_str())
+                    .map(|s| s.to_string())
+                    .unwrap_or_else(|| ".".to_string())
+            }
+            Err(_) => {
+                // If canonicalization fails, fall back to parent of the path as-is
+                toml_path.parent()
+                    .and_then(|p| p.to_str())
+                    .unwrap_or(".")
+                    .to_string()
+            }
+        };
+        
         // Read the file content first, then parse it. This avoids workspace resolution
         // which can fail when workspace.metadata is present but no workspace root exists.
         let toml_content = match fs::read_to_string(toml_path) {
@@ -128,7 +146,8 @@ fn main() {
                 }
             }
         } else {
-            check_architecture(".", check_for_complete_layer_specification);
+            // Use the directory containing Cargo.toml as the base directory
+            check_architecture(&cargo_dir, check_for_complete_layer_specification);
         }
     } else {
         println!("Cargo.toml not found in the specified path!");
