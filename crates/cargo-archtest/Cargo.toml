@@ -1,13 +1,13 @@
 [package]
-name = "cargo-archtest"
-version = "0.1.8"
+name = "cargo-archtest-cli"
+version = "0.1.9"
 edition = "2018"
 authors = ["Tom Dymel <tom@dymel.dev>"]
 description = "CLI of arch_test_core for rule based architecture tests"
 license = "AGPL-3.0"
 keywords = ["architecture", "test", "plugin", "cargo", "subcommand"]
 categories = ["command-line-utilities", "development-tools", "development-tools::cargo-plugins", "development-tools::testing"]
-repository = "https://github.com/Geigerkind/arch_test.git"
+repository = "https://github.com/magistrser/arch_test.git"
 readme = "../../README.md"
 include = [
     "src/",
@@ -15,6 +15,10 @@ include = [
     "../../README.md",
     "../../LICENCE"
 ]
+
+[[bin]]
+name = "cargo-archtest"
+path = "src/main.rs"
 
 [dependencies]
 arch_test_core = { path = "../arch_test_core", version = "0.1.5" }

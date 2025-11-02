@@ -22,7 +22,7 @@ It applies static analyses on the specified rust project to extract use relation
 You can install it either as sub command of Cargo or as a package in your developer dependencies.
 ```
 # Sub command
-cargo install cargo-archtest --force
+cargo install cargo-archtest-cli --force
 
 # Package
 [dev-dependencies]
@@ -99,7 +99,7 @@ arch_test:
     - uses: actions/checkout@v2
     - uses: actions-rs/install@v0.1
       with:
-        crate: cargo-archtest
+        crate: cargo-archtest-cli
         version: latest
     - run: cargo archtest
 ```

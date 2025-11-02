@@ -5,7 +5,7 @@
 //!
 //! ## Install
 //! ```sh
-//! cargo install cargo-archtest --force
+//! cargo install cargo-archtest-cli --force
 //! ```
 //!
 //! ## How to use it
@@ -56,7 +56,7 @@
 //!      - uses: actions/checkout@v2
 //!      - uses: actions-rs/install@v0.1
 //!        with:
-//!          crate: cargo-archtest
+//!          crate: cargo-archtest-cli
 //!          version: latest
 //!      - run: cargo archtest
 //! ```
