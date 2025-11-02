@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod test {
-    extern crate arch_test_core;
+    extern crate arch_validation_core;
 
-    use arch_test_core::access_rules::{
+    use arch_validation_core::access_rules::{
         MayNotAccess, MayNotBeAccessedBy, MayOnlyAccess, MayOnlyBeAccessedBy,
         NoLayerCyclicDependencies, NoModuleCyclicDependencies, NoParentAccess,
     };
-    use arch_test_core::{hash_set, Architecture, ModuleTree};
+    use arch_validation_core::{hash_set, Architecture, ModuleTree};
 
     #[test]
     fn test_architecture() {

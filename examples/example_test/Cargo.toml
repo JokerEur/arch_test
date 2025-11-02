@@ -5,4 +5,4 @@ authors = ["Tom Dymel <tom@dymel.dev>"]
 edition = "2018"
 
 [dev-dependencies]
-arch_test_core = { path = "../../crates/arch_test_core" }
+arch_validation_core = { path = "../../crates/arch_test_core" }

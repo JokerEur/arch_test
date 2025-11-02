@@ -2,12 +2,12 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use arch_test_core::access_rules::{
+use arch_validation_core::access_rules::{
     MayNotAccess, MayNotBeAccessedBy, MayOnlyAccess, MayOnlyBeAccessedBy,
     NoLayerCyclicDependencies, NoModuleCyclicDependencies, NoParentAccess,
 };
-use arch_test_core::hash_set;
-use arch_test_core::Architecture;
+use arch_validation_core::hash_set;
+use arch_validation_core::Architecture;
 
 use crate::domain_values::{AccessRule, Failure, Specification};
 

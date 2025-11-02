@@ -137,12 +137,17 @@ fn main() {
         };
         
         if let Some(workspace) = toml.workspace {
-            for member in workspace.members {
-                if member.contains('*') {
-                    println!("Can not interpret paths with '*'");
-                    std::process::exit(1);
-                } else {
-                    check_architecture(&member, check_for_complete_layer_specification);
+            if workspace.members.is_empty() {
+                // This is likely a package with workspace.metadata but not actually a workspace
+                check_architecture(&cargo_dir, check_for_complete_layer_specification);
+            } else {
+                for member in workspace.members {
+                    if member.contains('*') {
+                        println!("Can not interpret paths with '*'");
+                        std::process::exit(1);
+                    } else {
+                        check_architecture(&member, check_for_complete_layer_specification);
+                    }
                 }
             }
         } else {
