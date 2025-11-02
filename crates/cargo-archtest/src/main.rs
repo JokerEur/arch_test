@@ -89,22 +89,26 @@ fn main() {
     } = Command::from_args();
     let toml_path = Path::new(&toml_path);
     if toml_path.exists() && toml_path.is_file() {
-        if let Ok(toml) = cargo_toml::Manifest::from_path(toml_path) {
-            if let Some(workspace) = toml.workspace {
-                for member in workspace.members {
-                    if member.contains('*') {
-                        println!("Can not interpret paths with '*'");
-                        std::process::exit(1);
-                    } else {
-                        check_architecture(&member, check_for_complete_layer_specification);
+        match cargo_toml::Manifest::from_path(toml_path) {
+            Ok(toml) => {
+                if let Some(workspace) = toml.workspace {
+                    for member in workspace.members {
+                        if member.contains('*') {
+                            println!("Can not interpret paths with '*'");
+                            std::process::exit(1);
+                        } else {
+                            check_architecture(&member, check_for_complete_layer_specification);
+                        }
                     }
+                } else {
+                    check_architecture(".", check_for_complete_layer_specification);
                 }
-            } else {
-                check_architecture(".", check_for_complete_layer_specification);
             }
-        } else {
-            println!("Cargo.toml could not be parsed!");
-            std::process::exit(1);
+            Err(e) => {
+                eprintln!("Cargo.toml could not be parsed!");
+                eprintln!("Error: {}", e);
+                std::process::exit(1);
+            }
         }
     } else {
         println!("Cargo.toml not found in the specified path!");
