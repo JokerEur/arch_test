@@ -61,8 +61,7 @@ pub fn parse_main_or_mod_file_into_tree(
                 .to_str()
                 .unwrap()
                 .to_string()
-                .trim_end_matches(".rs")
-                .ends_with(&sub_module)
+                .trim_end_matches(".rs") == sub_module
         }) {
             if entry.path().is_dir() {
                 let path_str = format!("{}/mod.rs", entry.path().to_str().unwrap());
@@ -562,6 +561,7 @@ fn parse_file_rec(
         | SyntaxKind::LOOP_EXPR
         | SyntaxKind::ARRAY_EXPR
         | SyntaxKind::EFFECT_EXPR
+        | SyntaxKind::AWAIT_EXPR
         | SyntaxKind::CONDITION
         | SyntaxKind::ARG_LIST
         | SyntaxKind::EXPR_STMT => {

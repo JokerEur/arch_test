@@ -16,6 +16,12 @@ use crate::parser::entities::ModuleNode;
 use crate::parser::materials::ModuleTree;
 use std::collections::hash_map::RandomState;
 
+/// Check if a node is the root crate module (lib.rs or main.rs)
+/// The root crate module is identified by having no parent and being named "crate"
+fn is_root_crate_module(node: &ModuleNode) -> bool {
+    node.parent_index().is_none() && node.module_name() == "crate"
+}
+
 pub trait AccessRule: Debug {
     fn check(&self, module_tree: &ModuleTree) -> Result<(), RuleViolation>;
     fn validate(&self, layer_names: &HashSet<String>) -> bool;
@@ -114,7 +120,9 @@ impl AccessRule for MayNotAccess {
 impl AccessRule for MayOnlyBeAccessedBy {
     fn check(&self, module_tree: &ModuleTree) -> Result<(), RuleViolation> {
         for node in module_tree.tree().iter().filter(|node| {
-            !self.accessors().contains(node.module_name())
+            // Skip the root crate module (lib.rs/main.rs) - it's not a layer
+            !is_root_crate_module(node)
+                && !self.accessors().contains(node.module_name())
                 && !has_parent_matching_name(self.accessors(), node.index(), module_tree.tree())
         }) {
             if let Some(use_relation) = node
