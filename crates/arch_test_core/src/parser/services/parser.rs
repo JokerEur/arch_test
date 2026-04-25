@@ -61,7 +61,8 @@ pub fn parse_main_or_mod_file_into_tree(
                 .to_str()
                 .unwrap()
                 .to_string()
-                .trim_end_matches(".rs") == sub_module
+                .trim_end_matches(".rs")
+                == sub_module
         }) {
             if entry.path().is_dir() {
                 let path_str = format!("{}/mod.rs", entry.path().to_str().unwrap());
@@ -570,11 +571,7 @@ fn parse_file_rec(
             }
         }
         _ => {
-            println!(
-                "UNHANDLED EXPRESSION: {:?} => {}",
-                syntax_node,
-                syntax_node
-            );
+            println!("UNHANDLED EXPRESSION: {:?} => {}", syntax_node, syntax_node);
             println!(
                 " => Parent: {:?} => {}",
                 syntax_node.parent().unwrap(),
@@ -669,11 +666,7 @@ fn parse_path_type(syntax_node: &SyntaxNode) -> Vec<(String, TextRange)> {
                                             ));
                                         } else {
                                             obj_uses.push((
-                                                format!(
-                                                    "{}::{}",
-                                                    current_path,
-                                                    p_segment_child
-                                                ),
+                                                format!("{}::{}", current_path, p_segment_child),
                                                 p_segment_child.text_range(),
                                             ));
                                         }

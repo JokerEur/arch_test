@@ -342,7 +342,7 @@ fn exclude_modules_invalid_identifiers() {
             false,
         ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -356,7 +356,7 @@ fn exclude_modules_exact_match() {
             false,
         ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -370,7 +370,7 @@ fn exclude_modules_prefix_match() {
             false,
         ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -381,7 +381,7 @@ fn exclude_modules_cyclic_dependency_integrity() {
         .with_excluded_modules(hash_set!["crate::file_1".to_owned()])
         .with_access_rule(NoModuleCyclicDependencies);
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -395,7 +395,7 @@ fn exclude_modules_accessor_excluded() {
             false,
         ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -410,7 +410,7 @@ fn exclude_modules_accessed_excluded() {
             false,
         ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -424,7 +424,7 @@ fn exclude_modules_may_not_access() {
             false,
         ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -442,7 +442,7 @@ fn exclude_modules_may_only_be_accessed_by() {
         false,
     ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -460,7 +460,7 @@ fn exclude_modules_may_not_be_accessed_by() {
         false,
     ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -470,15 +470,15 @@ fn exclude_modules_no_parent_access() {
         .with_excluded_modules(hash_set!["crate::child".to_owned()])
         .with_access_rule(NoParentAccess);
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/no_parent_access/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
 #[test]
 fn is_module_excluded_returns_false_for_non_excluded() {
-    let architecture = Architecture::new(hash_set![])
-        .with_excluded_modules(hash_set!["file_1".to_owned()]);
-    
+    let architecture =
+        Architecture::new(hash_set![]).with_excluded_modules(hash_set!["file_1".to_owned()]);
+
     assert!(architecture.is_module_excluded("file_1"));
     assert!(!architecture.is_module_excluded("file_2"));
     assert!(!architecture.is_module_excluded("file_3"));
@@ -486,9 +486,9 @@ fn is_module_excluded_returns_false_for_non_excluded() {
 
 #[test]
 fn is_module_excluded_prefix_matching() {
-    let architecture = Architecture::new(hash_set![])
-        .with_excluded_modules(hash_set!["parent::".to_owned()]);
-    
+    let architecture =
+        Architecture::new(hash_set![]).with_excluded_modules(hash_set!["parent::".to_owned()]);
+
     assert!(architecture.is_module_excluded("parent::"));
     assert!(architecture.is_module_excluded("parent::child"));
     assert!(architecture.is_module_excluded("parent::child::grandchild"));
@@ -503,17 +503,14 @@ fn exclude_modules_multiple_exclusions() {
         "file_2".to_owned(),
         "file_3".to_owned()
     ])
-    .with_excluded_modules(hash_set![
-        "file_1".to_owned(),
-        "file_2".to_owned(),
-    ])
+    .with_excluded_modules(hash_set!["file_1".to_owned(), "file_2".to_owned(),])
     .with_access_rule(MayOnlyAccess::new(
         "file_1".to_owned(),
         hash_set!["file_2".to_owned(), "file_3".to_owned()],
         false,
     ));
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -526,7 +523,7 @@ fn exclude_modules_both_cyclic_modules_excluded() {
         ])
         .with_access_rule(NoModuleCyclicDependencies);
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
+
     assert!(architecture.check_access_rules(&module_tree).is_ok());
 }
 
@@ -536,6 +533,8 @@ fn exclude_modules_complete_layer_specification() {
     let architecture = Architecture::new(hash_set!["file_1".to_owned(), "file_2".to_owned()])
         .with_excluded_modules(hash_set!["crate::file_3".to_owned()]);
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/exclude_modules/main.rs");
-    
-    assert!(architecture.check_complete_layer_specification(&module_tree).is_ok());
+
+    assert!(architecture
+        .check_complete_layer_specification(&module_tree)
+        .is_ok());
 }
