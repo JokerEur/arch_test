@@ -1,3 +1,5 @@
+fn main() {}
+
 #[cfg(test)]
 mod test {
     extern crate arch_validation_core;
@@ -48,5 +50,3 @@ mod test {
         assert!(architecture.check_access_rules(&module_tree).is_ok());
     }
 }
-
-fn main() {}
