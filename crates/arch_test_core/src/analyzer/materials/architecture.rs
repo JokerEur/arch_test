@@ -49,7 +49,7 @@ impl<'r> Architecture<'r> {
         self
     }
 
-    pub fn validate_access_rules(&'r self) -> Result<(), RuleViolation> {
+    pub fn validate_access_rules(&'r self) -> Result<(), RuleViolation<'r>> {
         for access_rule in self.access_rules.iter() {
             if !access_rule.validate(&self.layer_names) {
                 return Err(RuleViolation::new(
@@ -62,7 +62,7 @@ impl<'r> Architecture<'r> {
         Ok(())
     }
 
-    pub fn check_access_rules(&self, module_tree: &ModuleTree) -> Result<(), RuleViolation> {
+    pub fn check_access_rules(&self, module_tree: &ModuleTree) -> Result<(), RuleViolation<'_>> {
         for access_rule in self.access_rules.iter() {
             access_rule.check(module_tree, &self.excluded_modules)?;
         }
@@ -72,7 +72,7 @@ impl<'r> Architecture<'r> {
     pub fn check_complete_layer_specification(
         &self,
         module_tree: &ModuleTree,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree: &Vec<ModuleNode> = module_tree.tree();
         if tree.iter().any(|node| {
             let node_path = node.get_fully_qualified_path(tree);

@@ -11,7 +11,7 @@ use arch_validation_core::Architecture;
 
 use crate::domain_values::{AccessRule, Failure, Specification};
 
-pub fn parse_specification(specification_path: &Path) -> Result<Architecture, Failure> {
+pub fn parse_specification(specification_path: &Path) -> Result<Architecture<'_>, Failure> {
     let specification: Specification =
         serde_json::from_str(&read_file_content(specification_path)?)
             .map_err(|_| Failure::SpecificationCouldNotBeParsed)?;

@@ -27,7 +27,7 @@ pub trait AccessRule: Debug {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation>;
+    ) -> Result<(), RuleViolation<'_>>;
     fn validate(&self, layer_names: &HashSet<String>) -> bool;
 }
 
@@ -36,7 +36,7 @@ impl AccessRule for MayOnlyAccess {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         for node in tree.iter().filter(|node| {
             let node_path = node.get_fully_qualified_path(tree);
@@ -92,7 +92,7 @@ impl AccessRule for MayNotAccess {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         for node in tree.iter().filter(|node| {
             let node_path = node.get_fully_qualified_path(tree);
@@ -148,7 +148,7 @@ impl AccessRule for MayOnlyBeAccessedBy {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         for node in tree.iter().filter(|node| {
             let node_path = node.get_fully_qualified_path(tree);
@@ -204,7 +204,7 @@ impl AccessRule for MayNotBeAccessedBy {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         for node in tree.iter().filter(|node| {
             let node_path = node.get_fully_qualified_path(tree);
@@ -258,7 +258,7 @@ impl AccessRule for NoParentAccess {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         for node in tree.iter().filter(|node| {
             let node_path = node.get_fully_qualified_path(tree);
@@ -300,7 +300,7 @@ impl AccessRule for NoModuleCyclicDependencies {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         if let Some(involved) = contains_cyclic_dependency(module_tree) {
             // Filter out any violations involving excluded modules
@@ -337,7 +337,7 @@ impl AccessRule for NoLayerCyclicDependencies {
         &self,
         module_tree: &ModuleTree,
         excluded_modules: &HashSet<String>,
-    ) -> Result<(), RuleViolation> {
+    ) -> Result<(), RuleViolation<'_>> {
         let tree = module_tree.tree();
         if let Some(involved) = contains_cyclic_dependency_on_any_level(module_tree) {
             // Filter out any violations involving excluded modules
