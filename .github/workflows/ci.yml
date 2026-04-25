@@ -16,10 +16,9 @@ jobs:
           components: rustfmt, clippy
 
       - name: Run cargo-tarpaulin
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: "0.30.0"
-          args: "-- --test-threads 1"
+        run: |
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --out Xml -- --test-threads 1
 
   test:
     name: Test suite
