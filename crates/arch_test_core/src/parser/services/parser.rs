@@ -362,6 +362,20 @@ fn parse_file_rec(
                                 text_range,
                             ));
                         }
+                        for assoc_item in child.children() {
+                            if assoc_item.kind() == SyntaxKind::FN {
+                                for fn_child in assoc_item.children() {
+                                    if fn_child.kind() == SyntaxKind::BLOCK_EXPR {
+                                        parse_file_rec(
+                                            &fn_child,
+                                            module_references,
+                                            usable_objects,
+                                            current_index,
+                                        );
+                                    }
+                                }
+                            }
+                        }
                     }
                     _ => continue,
                 }
