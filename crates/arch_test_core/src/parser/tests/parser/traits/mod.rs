@@ -47,6 +47,20 @@ fn impl_normal() {
 }
 
 #[test]
+fn impl_body_generic() {
+    let mut node_tree = Vec::new();
+    let path = Path::new("src/parser/tests/parser/traits/impl_body_generic.rs");
+    parse_main_or_mod_file_into_tree(&mut node_tree, path, 0, None, "WAMBO".to_owned());
+
+    assert!(
+        node_tree[0].usable_objects.iter().any(|obj| {
+            obj.object_type() == ObjectType::ImplicitUse && obj.object_name == "SomeType"
+        }),
+        "Expected SomeType to be detected as ImplicitUse from impl method body generic arg"
+    );
+}
+
+#[test]
 fn impl_trait() {
     let mut node_tree = Vec::new();
     let path = Path::new("src/parser/tests/parser/traits/impl_trait.rs");
