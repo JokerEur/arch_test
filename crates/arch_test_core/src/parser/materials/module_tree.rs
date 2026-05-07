@@ -303,6 +303,13 @@ impl ModuleTree {
                 {
                     continue;
                 }
+                // Internal crate imports (crate::...) are always real dependencies —
+                // Rust won't compile unused imports without #[allow(unused_imports)].
+                // Filtering them based on ImplicitUse tracking causes false negatives
+                // when types are used in positions the parser doesn't track (e.g. method bodies).
+                if node.usable_objects[i].object_name.starts_with("crate::") {
+                    continue;
+                }
                 if !node.usable_objects.iter().any(|obj| {
                     obj.object_type() == ObjectType::ImplicitUse
                         && obj

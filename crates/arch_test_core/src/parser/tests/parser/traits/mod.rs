@@ -47,6 +47,49 @@ fn impl_normal() {
 }
 
 #[test]
+fn trait_default_body() {
+    let mut node_tree = Vec::new();
+    let path = Path::new("src/parser/tests/parser/traits/trait_default_body.rs");
+    parse_main_or_mod_file_into_tree(&mut node_tree, path, 0, None, "WAMBO".to_owned());
+
+    assert!(
+        node_tree[0].usable_objects.iter().any(|obj| {
+            obj.object_type() == ObjectType::ImplicitUse && obj.object_name == "BodyType"
+        }),
+        "Expected BodyType to be detected as ImplicitUse from default trait method body"
+    );
+}
+
+#[test]
+fn where_clause() {
+    let mut node_tree = Vec::new();
+    let path = Path::new("src/parser/tests/parser/traits/where_clause.rs");
+    parse_main_or_mod_file_into_tree(&mut node_tree, path, 0, None, "WAMBO".to_owned());
+
+    assert!(
+        node_tree[0].usable_objects.iter().any(|obj| {
+            obj.object_type() == ObjectType::ImplicitUse && obj.object_name == "BoundType"
+        }),
+        "Expected BoundType to be detected as ImplicitUse from where clause"
+    );
+}
+
+#[test]
+fn match_patterns() {
+    let mut node_tree = Vec::new();
+    let path = Path::new("src/parser/tests/parser/traits/match_patterns.rs");
+    parse_main_or_mod_file_into_tree(&mut node_tree, path, 0, None, "WAMBO".to_owned());
+
+    assert!(
+        node_tree[0].usable_objects.iter().any(|obj| {
+            obj.object_type() == ObjectType::ImplicitUse
+                && obj.object_name.contains("PatternType")
+        }),
+        "Expected PatternType to be detected as ImplicitUse from match pattern"
+    );
+}
+
+#[test]
 fn impl_body_generic() {
     let mut node_tree = Vec::new();
     let path = Path::new("src/parser/tests/parser/traits/impl_body_generic.rs");

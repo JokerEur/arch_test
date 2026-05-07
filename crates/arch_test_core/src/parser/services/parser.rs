@@ -292,6 +292,9 @@ fn parse_file_rec(
                             }
                         }
                     }
+                    SyntaxKind::GENERIC_PARAM_LIST | SyntaxKind::WHERE_CLAUSE => {
+                        parse_file_rec(&child, module_references, usable_objects, current_index);
+                    }
                     SyntaxKind::BLOCK_EXPR => {
                         parse_file_rec(&child, module_references, usable_objects, current_index);
                     }
@@ -301,7 +304,7 @@ fn parse_file_rec(
                 }
             }
         }
-        SyntaxKind::PATH_EXPR | SyntaxKind::TUPLE_STRUCT_PAT | SyntaxKind::PATH_PAT => {
+        SyntaxKind::PATH_EXPR | SyntaxKind::TUPLE_STRUCT_PAT | SyntaxKind::PATH_PAT | SyntaxKind::RECORD_PAT => {
             for (impl_use_path, text_range) in parse_path_type(syntax_node) {
                 usable_objects.push(UsableObject::new(
                     false,
@@ -326,6 +329,9 @@ fn parse_file_rec(
                             child.text_range(),
                         ));
                     }
+                    SyntaxKind::GENERIC_PARAM_LIST | SyntaxKind::WHERE_CLAUSE => {
+                        parse_file_rec(&child, module_references, usable_objects, current_index);
+                    }
                     SyntaxKind::ASSOC_ITEM_LIST => {
                         for (impl_use_path, text_range) in parse_assoc_func_item_list(&child) {
                             usable_objects.push(UsableObject::new(
@@ -335,6 +341,20 @@ fn parse_file_rec(
                                 text_range,
                             ));
                         }
+                        for assoc_item in child.children() {
+                            if assoc_item.kind() == SyntaxKind::FN {
+                                for fn_child in assoc_item.children() {
+                                    if fn_child.kind() == SyntaxKind::BLOCK_EXPR {
+                                        parse_file_rec(
+                                            &fn_child,
+                                            module_references,
+                                            usable_objects,
+                                            current_index,
+                                        );
+                                    }
+                                }
+                            }
+                        }
                     }
                     _ => continue,
                 }
@@ -343,6 +363,9 @@ fn parse_file_rec(
         SyntaxKind::IMPL => {
             for child in syntax_node.children() {
                 match child.kind() {
+                    SyntaxKind::GENERIC_PARAM_LIST | SyntaxKind::WHERE_CLAUSE => {
+                        parse_file_rec(&child, module_references, usable_objects, current_index);
+                    }
                     SyntaxKind::PATH_TYPE => {
                         for (impl_use_path, text_range) in parse_path_type(&child) {
                             usable_objects.push(UsableObject::new(
@@ -443,13 +466,9 @@ fn parse_file_rec(
                         for match_arm in child.children() {
                             for arm_item in match_arm.children() {
                                 match arm_item.kind() {
-                                    SyntaxKind::PATH_PAT
-                                    | SyntaxKind::LITERAL_PAT
+                                    SyntaxKind::LITERAL_PAT
                                     | SyntaxKind::SLICE_PAT
-                                    | SyntaxKind::WILDCARD_PAT
-                                    | SyntaxKind::OR_PAT
-                                    | SyntaxKind::RECORD_PAT => {
-                                        // We wont need those special cases
+                                    | SyntaxKind::WILDCARD_PAT => {
                                         continue;
                                     }
                                     _ => {
@@ -538,7 +557,6 @@ fn parse_file_rec(
         | SyntaxKind::MACRO_PAT
         | SyntaxKind::MACRO_RULES
         | SyntaxKind::ATTR
-        | SyntaxKind::RECORD_PAT
         | SyntaxKind::LITERAL
         | SyntaxKind::EXTERN_CRATE
         | SyntaxKind::CONTINUE_EXPR
@@ -579,7 +597,14 @@ fn parse_file_rec(
         | SyntaxKind::AWAIT_EXPR
         | SyntaxKind::CONDITION
         | SyntaxKind::ARG_LIST
-        | SyntaxKind::EXPR_STMT => {
+        | SyntaxKind::EXPR_STMT
+        | SyntaxKind::WHERE_CLAUSE
+        | SyntaxKind::WHERE_PRED
+        | SyntaxKind::GENERIC_PARAM_LIST
+        | SyntaxKind::TYPE_PARAM
+        | SyntaxKind::CONST_PARAM
+        | SyntaxKind::TYPE_BOUND_LIST
+        | SyntaxKind::TYPE_BOUND => {
             for child in syntax_node.children() {
                 parse_file_rec(&child, module_references, usable_objects, current_index);
             }
@@ -798,6 +823,20 @@ fn parse_assoc_func_item_list(syntax_node: &SyntaxNode) -> Vec<(String, TextRang
                                 result.append(&mut parse_path_type(&ret));
                             }
                             _ => continue,
+                        }
+                    }
+                }
+                SyntaxKind::GENERIC_PARAM_LIST => {
+                    for param in func.children() {
+                        for param_child in param.children() {
+                            result.append(&mut parse_nested_tuple_type(&param_child));
+                        }
+                    }
+                }
+                SyntaxKind::WHERE_CLAUSE => {
+                    for where_pred in func.children() {
+                        for pred_child in where_pred.children() {
+                            result.append(&mut parse_nested_tuple_type(&pred_child));
                         }
                     }
                 }
