@@ -7,6 +7,23 @@ use crate::analyzer::domain_values::access_rules::{
 use crate::{Architecture, ModuleTree};
 
 #[test]
+fn layer_dependency_direction_violation() {
+    let architecture =
+        Architecture::new(hash_set!["application".to_owned(), "infra".to_owned()]).with_access_rule(
+            MayNotAccess::new("application".to_owned(), hash_set!["infra".to_owned()], false),
+        );
+    let module_tree = ModuleTree::new(
+        "src/analyzer/tests/access_rules/layer_dependency_direction/main.rs",
+    );
+    assert!(architecture.check_access_rules(&module_tree).is_err());
+    architecture
+        .check_access_rules(&module_tree)
+        .err()
+        .unwrap()
+        .print(module_tree.tree());
+}
+
+#[test]
 fn no_parent_access() {
     let architecture = Architecture::new(hash_set![]).with_access_rule(NoParentAccess);
     let module_tree = ModuleTree::new("src/analyzer/tests/access_rules/no_parent_access/main.rs");
