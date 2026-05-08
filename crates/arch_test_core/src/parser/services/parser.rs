@@ -304,7 +304,10 @@ fn parse_file_rec(
                 }
             }
         }
-        SyntaxKind::PATH_EXPR | SyntaxKind::TUPLE_STRUCT_PAT | SyntaxKind::PATH_PAT | SyntaxKind::RECORD_PAT => {
+        SyntaxKind::PATH_EXPR
+        | SyntaxKind::TUPLE_STRUCT_PAT
+        | SyntaxKind::PATH_PAT
+        | SyntaxKind::RECORD_PAT => {
             for (impl_use_path, text_range) in parse_path_type(syntax_node) {
                 usable_objects.push(UsableObject::new(
                     false,
