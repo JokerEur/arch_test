@@ -135,16 +135,12 @@ fn filter_unused_uses() {
             .any(|obj| obj.object_name == "a::b::c"),
         "Expected unused import to be preserved as dependency"
     );
-    assert!(
-        tree[0]
-            .usable_objects
-            .iter()
-            .any(|obj| obj.object_name == "crate::file_1::Test1"),
-    );
-    assert!(
-        tree[0]
-            .usable_objects
-            .iter()
-            .any(|obj| obj.object_name == "main"),
-    );
+    assert!(tree[0]
+        .usable_objects
+        .iter()
+        .any(|obj| obj.object_name == "crate::file_1::Test1"),);
+    assert!(tree[0]
+        .usable_objects
+        .iter()
+        .any(|obj| obj.object_name == "main"),);
 }
