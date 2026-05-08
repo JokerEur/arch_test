@@ -1,6 +1,6 @@
 [package]
 name = "arch_validation_core"
-version = "0.1.9"
+version = "0.1.10"
 edition = "2018"
 authors = ["Tom Dymel <tom@dymel.dev>"]
 description = "Rule based architecture test library"
@@ -9,12 +9,7 @@ keywords = ["architecture", "test", "cargo", "subcommand"]
 categories = ["development-tools", "development-tools::testing"]
 repository = "https://github.com/magistrser/arch_test.git"
 readme = "../../README.md"
-include = [
-    "src/",
-    "architecture.json",
-    "../../README.md",
-    "../../LICENCE"
-]
+include = ["src/", "architecture.json", "../../README.md", "../../LICENCE"]
 
 [dependencies]
 velcro = "0.5.3"
