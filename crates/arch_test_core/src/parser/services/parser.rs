@@ -563,7 +563,9 @@ fn parse_file_rec(
         | SyntaxKind::LITERAL
         | SyntaxKind::EXTERN_CRATE
         | SyntaxKind::CONTINUE_EXPR
-        | SyntaxKind::BREAK_EXPR => {
+        | SyntaxKind::BREAK_EXPR
+        | SyntaxKind::LIFETIME_PARAM
+        | SyntaxKind::ERROR => {
             return None;
         }
         SyntaxKind::NAME_REF
