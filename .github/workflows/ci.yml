@@ -1,4 +1,7 @@
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
 
 name: Pipeline
 
@@ -59,3 +62,62 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo install cargo-archtest-cli --locked
       - run: cargo archtest
+
+  publish:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    needs: [check, test, fmt, clippy, arch_test]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-edit
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-edit
+
+      - name: Bump patch version in arch_validation_core
+        run: cargo set-version --bump patch --manifest-path crates/arch_test_core/Cargo.toml
+
+      - name: Read new core version
+        id: core_version
+        run: |
+          VERSION=$(grep '^version' crates/arch_test_core/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Bump patch version in cargo-archtest-cli
+        run: cargo set-version --bump patch --manifest-path crates/cargo-archtest/Cargo.toml
+
+      - name: Update arch_validation_core dependency version in CLI
+        run: |
+          CORE_VERSION="${{ steps.core_version.outputs.version }}"
+          sed -i "s/arch_validation_core = { path = \"..\/arch_test_core\", version = \"[^\"]*\" }/arch_validation_core = { path = \"..\/arch_test_core\", version = \"$CORE_VERSION\" }/" crates/cargo-archtest/Cargo.toml
+
+      - name: Commit version bumps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add crates/arch_test_core/Cargo.toml crates/cargo-archtest/Cargo.toml
+          git commit -m "chore: bump patch version to ${{ steps.core_version.outputs.version }} [skip ci]"
+          git push
+
+      - name: Publish arch_validation_core
+        run: cargo publish --manifest-path crates/arch_test_core/Cargo.toml
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+      - name: Wait for crates.io to index arch_validation_core
+        run: sleep 30
+
+      - name: Publish cargo-archtest-cli
+        run: cargo publish --manifest-path crates/cargo-archtest/Cargo.toml
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
