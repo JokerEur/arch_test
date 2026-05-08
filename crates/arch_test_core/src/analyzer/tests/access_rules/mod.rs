@@ -8,13 +8,14 @@ use crate::{Architecture, ModuleTree};
 
 #[test]
 fn layer_dependency_direction_violation() {
-    let architecture =
-        Architecture::new(hash_set!["application".to_owned(), "infra".to_owned()]).with_access_rule(
-            MayNotAccess::new("application".to_owned(), hash_set!["infra".to_owned()], false),
-        );
-    let module_tree = ModuleTree::new(
-        "src/analyzer/tests/access_rules/layer_dependency_direction/main.rs",
-    );
+    let architecture = Architecture::new(hash_set!["application".to_owned(), "infra".to_owned()])
+        .with_access_rule(MayNotAccess::new(
+            "application".to_owned(),
+            hash_set!["infra".to_owned()],
+            false,
+        ));
+    let module_tree =
+        ModuleTree::new("src/analyzer/tests/access_rules/layer_dependency_direction/main.rs");
     assert!(architecture.check_access_rules(&module_tree).is_err());
     architecture
         .check_access_rules(&module_tree)

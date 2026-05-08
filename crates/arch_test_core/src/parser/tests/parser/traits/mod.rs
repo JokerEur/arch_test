@@ -82,8 +82,7 @@ fn match_patterns() {
 
     assert!(
         node_tree[0].usable_objects.iter().any(|obj| {
-            obj.object_type() == ObjectType::ImplicitUse
-                && obj.object_name.contains("PatternType")
+            obj.object_type() == ObjectType::ImplicitUse && obj.object_name.contains("PatternType")
         }),
         "Expected PatternType to be detected as ImplicitUse from match pattern"
     );
